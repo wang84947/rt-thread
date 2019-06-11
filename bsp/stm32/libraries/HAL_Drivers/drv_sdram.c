@@ -23,6 +23,58 @@ static FMC_SDRAM_CommandTypeDef command;
 static struct rt_memheap system_heap;
 #endif
 
+
+//static SDRAM_HandleTypeDef hsdram3;
+
+
+//static void MX_FSMC_Init(void)
+//{
+// FSMC_NORSRAM_TimingTypeDef Timing;
+//  FSMC_NORSRAM_TimingTypeDef ExtTiming;
+
+//  /** Perform the SRAM3 memory initialization sequence
+//  */
+//  hsram3.Instance = FSMC_NORSRAM_DEVICE;
+//  hsram3.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
+//  /* hsram3.Init */
+//  hsram3.Init.NSBank = FSMC_NORSRAM_BANK3;
+//  hsram3.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
+//  hsram3.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
+//  hsram3.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
+//  hsram3.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
+//  hsram3.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
+//  hsram3.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
+//  hsram3.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
+//  hsram3.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
+//  hsram3.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
+//  hsram3.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
+//  hsram3.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
+//  hsram3.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
+//  hsram3.Init.PageSize = FSMC_PAGE_SIZE_NONE;
+//  /* Timing */
+//  Timing.AddressSetupTime = 0;
+//  Timing.AddressHoldTime = 15;
+//  Timing.DataSetupTime = 8;
+//  Timing.BusTurnAroundDuration = 0;
+//  Timing.CLKDivision = 16;
+//  Timing.DataLatency = 17;
+//  Timing.AccessMode = FSMC_ACCESS_MODE_A;
+//  /* ExtTiming */
+//  ExtTiming.AddressSetupTime = 0;
+//  ExtTiming.AddressHoldTime = 15;
+//  ExtTiming.DataSetupTime = 8;
+//  ExtTiming.BusTurnAroundDuration = 0;
+//  ExtTiming.CLKDivision = 16;
+//  ExtTiming.DataLatency = 17;
+//  ExtTiming.AccessMode = FSMC_ACCESS_MODE_A;
+
+//  if (HAL_SRAM_Init(&hsram3, &Timing, &ExtTiming) != HAL_OK)
+//  {
+//    Error_Handler( );
+//  }
+//	
+//}	
+
 /**
   * @brief  Perform the SDRAM exernal memory inialization sequence
   * @param  hsdram: SDRAM handle

@@ -12,7 +12,7 @@
  */
 
 #include "drv_can.h"
-
+#define BSP_USING_CAN1
 #ifdef RT_USING_CAN
 
 #if defined (SOC_SERIES_STM32F1)
@@ -644,7 +644,58 @@ static rt_err_t drv_configure(struct rt_can_device *dev_can,
     HAL_CAN_ConfigFilter(&drv_can->CanHandle, filterConf);
     return RT_EOK;
 }
+static rt_err_t setfilter(struct stm32_drv_can *drv_can, struct rt_can_filter_config *pconfig)
+{
 
+    CAN_FilterConfTypeDef *filterConf;
+	
+		uint32_t StdIdArray[10] = {0x160,0x712,0x713,0x714,0x715,
+														 0x716,0x717,0x718,0x719,0x71a
+														};
+
+    uint32_t ExtIdArray[10] = {0x1900fAB1,0x1900fAB2,0x1900fAB3,0x1900fAB4,0x1900fAB5,
+                               0x1900fAB6,0x1900fAB7,0x1900fAB8,0x1900fAB9,0x1900fABA
+                              };
+    uint32_t      mask,num,tmp,i,standard_mask,extend_mask,mix_mask;
+		standard_mask =0x7ff;		//
+    num =sizeof(StdIdArray)/sizeof(StdIdArray[0]);
+    for(i =0; i<num; i++)			//
+    {
+        tmp =StdIdArray[i] ^ (~StdIdArray[0]);
+        standard_mask &=tmp;
+    }
+
+    extend_mask =0x1fffffff;
+    num =sizeof(ExtIdArray)/sizeof(ExtIdArray[0]);
+    for(i =0; i<num; i++)			//
+    {
+        tmp =ExtIdArray[i] ^ (~ExtIdArray[0]);
+        extend_mask &=tmp;
+    }
+    mix_mask =(StdIdArray[0]<<18)^ (~ExtIdArray[0]);	//
+    mask =(standard_mask<<18)& extend_mask &mix_mask;	//
+    mask <<=3;    						//
+		
+		filterConf = &drv_can->FilterConfig;
+    filterConf->FilterNumber = 0;
+    filterConf->FilterMode = CAN_FILTERMODE_IDMASK;
+    filterConf->FilterScale = CAN_FILTERSCALE_32BIT;
+		
+    filterConf->FilterIdHigh = 0x0000;
+    filterConf->FilterIdLow = 0x0000;
+    filterConf->FilterMaskIdHigh = 0x0000;
+    filterConf->FilterMaskIdLow = 0x0000;
+		
+	  filterConf->FilterIdHigh=((ExtIdArray[0]<<3) >>16) &0xffff;////32位ID
+    filterConf->FilterIdLow=((ExtIdArray[0]<<3)&0xffff);
+    filterConf->FilterMaskIdHigh=(mask>>16)&0xffff;//32位MASK 0的话代表ID什么都能接收。1的话代表ID需要与我们的ID相对应的才可以接收到
+    filterConf->FilterMaskIdLow=(mask&0xffff);
+	 
+    filterConf->FilterFIFOAssignment = CAN_FIFO0;
+    filterConf->FilterActivation = ENABLE;
+    filterConf->BankNumber = 14;
+    HAL_CAN_ConfigFilter(&drv_can->CanHandle, filterConf);
+	}		
 static rt_err_t drv_control(struct rt_can_device *can, int cmd, void *arg)
 {
     struct stm32_drv_can *drv_can;
@@ -775,6 +826,7 @@ static rt_err_t drv_control(struct rt_can_device *can, int cmd, void *arg)
         break;
     case RT_CAN_CMD_SET_FILTER:
         /* TODO: filter*/
+				setfilter(drv_can, (struct rt_can_filter_config *) arg);
         break;
     case RT_CAN_CMD_SET_MODE:
         argval = (rt_uint32_t) arg;

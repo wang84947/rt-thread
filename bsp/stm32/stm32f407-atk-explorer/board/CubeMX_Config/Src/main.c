@@ -64,6 +64,10 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
+CAN_HandleTypeDef hcan1;
+
+CRC_HandleTypeDef hcrc;
+
 ETH_HandleTypeDef heth;
 
 IWDG_HandleTypeDef hiwdg;
@@ -82,6 +86,9 @@ TIM_HandleTypeDef htim14;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
+
+SRAM_HandleTypeDef hsram3;
+SRAM_HandleTypeDef hsram4;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -104,6 +111,9 @@ static void MX_TIM11_Init(void);
 static void MX_SDIO_SD_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_CRC_Init(void);
+static void MX_FSMC_Init(void);
+static void MX_CAN1_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
@@ -155,6 +165,9 @@ int main(void)
   MX_SDIO_SD_Init();
   MX_TIM2_Init();
   MX_SPI2_Init();
+  MX_CRC_Init();
+  MX_FSMC_Init();
+  MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -271,6 +284,69 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief CAN1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CAN1_Init(void)
+{
+
+  /* USER CODE BEGIN CAN1_Init 0 */
+
+  /* USER CODE END CAN1_Init 0 */
+
+  /* USER CODE BEGIN CAN1_Init 1 */
+
+  /* USER CODE END CAN1_Init 1 */
+  hcan1.Instance = CAN1;
+  hcan1.Init.Prescaler = 6;
+  hcan1.Init.Mode = CAN_MODE_NORMAL;
+  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_7TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_6TQ;
+  hcan1.Init.TimeTriggeredMode = DISABLE;
+  hcan1.Init.AutoBusOff = DISABLE;
+  hcan1.Init.AutoWakeUp = DISABLE;
+  hcan1.Init.AutoRetransmission = DISABLE;
+  hcan1.Init.ReceiveFifoLocked = DISABLE;
+  hcan1.Init.TransmitFifoPriority = DISABLE;
+  if (HAL_CAN_Init(&hcan1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CAN1_Init 2 */
+
+  /* USER CODE END CAN1_Init 2 */
+
+}
+
+/**
+  * @brief CRC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CRC_Init(void)
+{
+
+  /* USER CODE BEGIN CRC_Init 0 */
+
+  /* USER CODE END CRC_Init 0 */
+
+  /* USER CODE BEGIN CRC_Init 1 */
+
+  /* USER CODE END CRC_Init 1 */
+  hcrc.Instance = CRC;
+  if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CRC_Init 2 */
+
+  /* USER CODE END CRC_Init 2 */
 
 }
 
@@ -714,14 +790,119 @@ static void MX_USART3_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
+
+  /*Configure GPIO pins : PE2 PE3 PE4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+}
+
+/* FSMC initialization function */
+static void MX_FSMC_Init(void)
+{
+  FSMC_NORSRAM_TimingTypeDef Timing;
+  FSMC_NORSRAM_TimingTypeDef ExtTiming;
+
+  /** Perform the SRAM3 memory initialization sequence
+  */
+  hsram3.Instance = FSMC_NORSRAM_DEVICE;
+  hsram3.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
+  /* hsram3.Init */
+  hsram3.Init.NSBank = FSMC_NORSRAM_BANK3;
+  hsram3.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
+  hsram3.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
+  hsram3.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
+  hsram3.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
+  hsram3.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
+  hsram3.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
+  hsram3.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
+  hsram3.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
+  hsram3.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
+  hsram3.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
+  hsram3.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
+  hsram3.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
+  hsram3.Init.PageSize = FSMC_PAGE_SIZE_NONE;
+  /* Timing */
+  Timing.AddressSetupTime = 0;
+  Timing.AddressHoldTime = 15;
+  Timing.DataSetupTime = 8;
+  Timing.BusTurnAroundDuration = 0;
+  Timing.CLKDivision = 16;
+  Timing.DataLatency = 17;
+  Timing.AccessMode = FSMC_ACCESS_MODE_A;
+  /* ExtTiming */
+  ExtTiming.AddressSetupTime = 0;
+  ExtTiming.AddressHoldTime = 15;
+  ExtTiming.DataSetupTime = 8;
+  ExtTiming.BusTurnAroundDuration = 0;
+  ExtTiming.CLKDivision = 16;
+  ExtTiming.DataLatency = 17;
+  ExtTiming.AccessMode = FSMC_ACCESS_MODE_A;
+
+  if (HAL_SRAM_Init(&hsram3, &Timing, &ExtTiming) != HAL_OK)
+  {
+    Error_Handler( );
+  }
+
+  /** Perform the SRAM4 memory initialization sequence
+  */
+  hsram4.Instance = FSMC_NORSRAM_DEVICE;
+  hsram4.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
+  /* hsram4.Init */
+  hsram4.Init.NSBank = FSMC_NORSRAM_BANK4;
+  hsram4.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
+  hsram4.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
+  hsram4.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
+  hsram4.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
+  hsram4.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
+  hsram4.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
+  hsram4.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
+  hsram4.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
+  hsram4.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
+  hsram4.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
+  hsram4.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
+  hsram4.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
+  hsram4.Init.PageSize = FSMC_PAGE_SIZE_NONE;
+  /* Timing */
+  Timing.AddressSetupTime = 15;
+  Timing.AddressHoldTime = 15;
+  Timing.DataSetupTime = 24;
+  Timing.BusTurnAroundDuration = 0;
+  Timing.CLKDivision = 16;
+  Timing.DataLatency = 17;
+  Timing.AccessMode = FSMC_ACCESS_MODE_A;
+  /* ExtTiming */
+  ExtTiming.AddressSetupTime = 8;
+  ExtTiming.AddressHoldTime = 15;
+  ExtTiming.DataSetupTime = 8;
+  ExtTiming.BusTurnAroundDuration = 0;
+  ExtTiming.CLKDivision = 16;
+  ExtTiming.DataLatency = 17;
+  ExtTiming.AccessMode = FSMC_ACCESS_MODE_A;
+
+  if (HAL_SRAM_Init(&hsram4, &Timing, &ExtTiming) != HAL_OK)
+  {
+    Error_Handler( );
+  }
 
 }
 

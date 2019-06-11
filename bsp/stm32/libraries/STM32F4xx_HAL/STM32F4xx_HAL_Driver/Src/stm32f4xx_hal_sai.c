@@ -987,39 +987,26 @@ HAL_StatusTypeDef HAL_SAI_DMAResume(SAI_HandleTypeDef *hsai)
   */
 HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-
   /* Process Locked */
   __HAL_LOCK(hsai);
 
   /* Disable the SAI DMA request */
   hsai->Instance->CR1 &= ~SAI_xCR1_DMAEN;
 
-  /* Abort the SAI Tx DMA Stream */
-  if((hsai->hdmatx != NULL) && (hsai->State == HAL_SAI_STATE_BUSY_TX))
+  /* Abort the SAI DMA Streams */
+  if(hsai->hdmatx != NULL)
   {
     if(HAL_DMA_Abort(hsai->hdmatx) != HAL_OK)
     {
-      /* If the DMA Tx errorCode is different from DMA No Transfer then return Error */
-      if(hsai->hdmatx->ErrorCode != HAL_DMA_ERROR_NO_XFER)
-      {
-        status = HAL_ERROR;
-        hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
-      }
+      return HAL_ERROR;
     }
   }
 
-  /* Abort the SAI Rx DMA Stream */
-  if((hsai->hdmarx != NULL) && (hsai->State == HAL_SAI_STATE_BUSY_RX))
+  if(hsai->hdmarx != NULL)
   {
     if(HAL_DMA_Abort(hsai->hdmarx) != HAL_OK)
     {
-      /* If the DMA Rx errorCode is different from DMA No Transfer then return Error */
-      if(hsai->hdmarx->ErrorCode != HAL_DMA_ERROR_NO_XFER)
-      {
-        status = HAL_ERROR;
-        hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
-      }
+      return HAL_ERROR;
     }
   }
 
@@ -1029,13 +1016,12 @@ HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai)
   /* Flush the fifo */
   SET_BIT(hsai->Instance->CR2, SAI_xCR2_FFLUSH);
 
-  /* Set hsai state to ready */
   hsai->State = HAL_SAI_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(hsai);
 
-  return status;
+  return HAL_OK;
 }
 
 /**
@@ -1046,8 +1032,6 @@ HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai)
   */
 HAL_StatusTypeDef HAL_SAI_Abort(SAI_HandleTypeDef *hsai)
 {
-  HAL_StatusTypeDef status = HAL_OK;
-
   /* Process Locked */
   __HAL_LOCK(hsai);
 
@@ -1056,32 +1040,21 @@ HAL_StatusTypeDef HAL_SAI_Abort(SAI_HandleTypeDef *hsai)
   {
     /* Disable the SAI DMA request */
     hsai->Instance->CR1 &= ~SAI_xCR1_DMAEN;
-
-    /* Abort the SAI Tx DMA Stream */
-    if((hsai->hdmatx != NULL) && (hsai->State == HAL_SAI_STATE_BUSY_TX))
+    
+    /* Abort the SAI DMA Streams */
+    if(hsai->hdmatx != NULL)
     {
       if(HAL_DMA_Abort(hsai->hdmatx) != HAL_OK)
       {
-        /* If the DMA Tx errorCode is different from DMA No Transfer then return Error */
-        if(hsai->hdmatx->ErrorCode != HAL_DMA_ERROR_NO_XFER)
-        {
-          status = HAL_ERROR;
-          hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
-        }
+        return HAL_ERROR;
       }
     }
-
-    /* Abort the SAI Rx DMA Stream */
-    if((hsai->hdmarx != NULL) && (hsai->State == HAL_SAI_STATE_BUSY_RX))
+    
+    if(hsai->hdmarx != NULL)
     {
       if(HAL_DMA_Abort(hsai->hdmarx) != HAL_OK)
       {
-        /* If the DMA Rx errorCode is different from DMA No Transfer then return Error */
-        if(hsai->hdmarx->ErrorCode != HAL_DMA_ERROR_NO_XFER)
-        {
-          status = HAL_ERROR;
-          hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
-        }
+        return HAL_ERROR;
       }
     }
   }
@@ -1096,13 +1069,12 @@ HAL_StatusTypeDef HAL_SAI_Abort(SAI_HandleTypeDef *hsai)
   /* Flush the fifo */
   SET_BIT(hsai->Instance->CR2, SAI_xCR2_FFLUSH);
 
-  /* Set hsai state to ready */
   hsai->State = HAL_SAI_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(hsai);
 
-  return status;
+  return HAL_OK;
 }
 
 /**
