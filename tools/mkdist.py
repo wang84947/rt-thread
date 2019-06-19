@@ -141,20 +141,15 @@ def bsp_update_kconfig_library(dist_dir):
                 found = 0
             f.write(line)
 
-def bs_update_ide_project(bsp_root, rtt_root, rttide = None):
+def bs_update_ide_project(bsp_root, rtt_root):
     import subprocess
     # default update the projects which have template file
-
-    if rttide == None:
-        tgt_dict = {'mdk4':('keil', 'armcc'),
-                    'mdk5':('keil', 'armcc'),
-                    'iar':('iar', 'iar'),
-                    'vs':('msvc', 'cl'),
-                    'vs2012':('msvc', 'cl'),
-                    'cdk':('gcc', 'gcc')}
-    else:
-        item = 'eclipse --project-name=' + rttide['project_name']
-        tgt_dict = {item:('gcc', 'gcc')}
+    tgt_dict = {'mdk4':('keil', 'armcc'),
+                'mdk5':('keil', 'armcc'),
+                'iar':('iar', 'iar'),
+                'vs':('msvc', 'cl'),
+                'vs2012':('msvc', 'cl'),
+                'cdk':('gcc', 'gcc')}
 
     scons_env = os.environ.copy()
     scons_env['RTT_ROOT'] = rtt_root
@@ -307,15 +302,11 @@ def MkDist_Strip(program, BSP_ROOT, RTT_ROOT, Env):
 
     print('done!')
 
-def MkDist(program, BSP_ROOT, RTT_ROOT, Env, rttide = None):
+def MkDist(program, BSP_ROOT, RTT_ROOT, Env):
     print('make distribution....')
 
     dist_name = os.path.basename(BSP_ROOT)
-
-    if rttide == None:
-        dist_dir = os.path.join(BSP_ROOT, 'dist', dist_name)
-    else:
-        dist_dir = rttide['project_path']
+    dist_dir  = os.path.join(BSP_ROOT, 'dist', dist_name)
 
     target_path = os.path.join(dist_dir, 'rt-thread')
 
@@ -375,16 +366,11 @@ def MkDist(program, BSP_ROOT, RTT_ROOT, Env, rttide = None):
     # change RTT_ROOT in Kconfig
     bsp_update_kconfig(dist_dir)
     bsp_update_kconfig_library(dist_dir)
-
     # update all project files
-    if rttide == None:
-        bs_update_ide_project(dist_dir, target_path)
-    else:
-        bs_update_ide_project(dist_dir, target_path, rttide)
+    bs_update_ide_project(dist_dir, target_path)
 
     # make zip package
-    if rttide == None:
-        zip_dist(dist_dir, dist_name)
+    zip_dist(dist_dir, dist_name)
 
     print('done!')
 
